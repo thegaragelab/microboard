@@ -78,13 +78,13 @@ C_WARNINGS = -Wall -Wstrict-prototypes -Wextra
 CORE_FLAGS = -mcpu=$(CORE) -mthumb
 
 # flags for C++ compiler
-CXX_FLAGS = -std=$(CXX_STD) -g -ggdb3 -fno-rtti -fno-exceptions -fverbose-asm -Wa,-ahlms=$(OUT_DIR_F)$(notdir $(<:.$(CXX_EXT)=.lst))
+CXX_FLAGS = -std=$(CXX_STD) -g -ggdb3 -fno-rtti -fno-exceptions -fverbose-asm -Wa,-ahlms=$(notdir $(<:.$(EXT_CPP)=.lst))
 
 # flags for C compiler
-C_FLAGS = -std=$(C_STD) -g -ggdb3 -fverbose-asm -Wa,-ahlms=$(OUT_DIR_F)$(notdir $(<:.$(C_EXT)=.lst))
+C_FLAGS = -std=$(C_STD) -g -ggdb3 -fverbose-asm -Wa,-ahlms=$(notdir $(<:.$(EXT_C)=.lst))
 
 # flags for assembler
-AS_FLAGS = -g -ggdb3 -Wa,-amhls=$(OUT_DIR_F)$(notdir $(<:.$(AS_EXT)=.lst))
+AS_FLAGS = -g -ggdb3 -Wa,-amhls=$(notdir $(<:.$(EXT_ASM)=.lst))
 
 
 INC_DIRS_F = -I. $(patsubst %, -I%, $(INC_DIRS))
@@ -96,7 +96,7 @@ C_FLAGS_F = $(CORE_FLAGS) $(OPTIMIZATION) $(C_WARNINGS) $(C_FLAGS) $(C_DEFS) -MD
 AS_FLAGS_F = $(CORE_FLAGS) $(AS_FLAGS) $(AS_DEFS) -MD -MP -MF $(@F:.o=.d)  -I. -I$(INCLUDE)
 
 # Files that get generated
-GENERATED = $(wildcard $(patsubst %, *.%, d o))
+GENERATED = $(wildcard $(patsubst %, *.%, d o lst))
 
 #=============================================================================#
 # make all
