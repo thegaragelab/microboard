@@ -75,7 +75,7 @@ CXX_WARNINGS = -Wall -Wextra
 C_WARNINGS = -Wall -Wstrict-prototypes -Wextra
 
 # core flags
-CORE_FLAGS = -mcpu=$(CORE) -mthumb
+CORE_FLAGS = -mcpu=$(CORE) -mthumb  -DMICROBOARD_LPC1114
 
 # flags for C++ compiler
 CXX_FLAGS = -std=$(CXX_STD) -g -ggdb3 -fno-rtti -fno-exceptions -fverbose-asm -Wa,-ahlms=$(notdir $(<:.$(EXT_CPP)=.lst))
@@ -113,41 +113,39 @@ $(OBJECTS) : Makefile
 #-----------------------------------------------------------------------------#
 
 $(LIBNAME): $(OBJECTS)
-	$(AR) rcs $(LIBNAME) $(OBJECTS)
+	@echo 'Building library'
+	@$(AR) rcs $(LIBNAME) $(OBJECTS)
 
 #-----------------------------------------------------------------------------#
 # compiling - C++ source -> objects
 #-----------------------------------------------------------------------------#
 
 %.o : %.$(EXT_CPP)
-	@echo 'Compiling file: $<'
-	$(CXX) -c $(CXX_FLAGS_F) $< -o $@
-	@echo ' '
+	@echo 'Compiling: $<'
+	@$(CXX) -c $(CXX_FLAGS_F) $< -o $@
 
 #-----------------------------------------------------------------------------#
 # compiling - C source -> objects
 #-----------------------------------------------------------------------------#
 
 %.o : %.$(EXT_C)
-	@echo 'Compiling file: $<'
-	$(CC) -c $(C_FLAGS_F) $< -o $@
-	@echo ' '
+	@echo 'Compiling: $<'
+	@$(CC) -c $(C_FLAGS_F) $< -o $@
 
 #-----------------------------------------------------------------------------#
 # assembling - ASM source -> objects
 #-----------------------------------------------------------------------------#
 
 %.o : %.$(EXT_ASM)
-	@echo 'Assembling file: $<'
-	$(AS) -c $(AS_FLAGS_F) $< -o $@
-	@echo ' '
+	@echo 'Assembling: $<'
+	@$(AS) -c $(AS_FLAGS_F) $< -o $@
 
 #-----------------------------------------------------------------------------#
 # create the desired output directory
 #-----------------------------------------------------------------------------#
 
 make_output_dir :
-	$(shell mkdir -p $(LIBDIR) 2>/dev/null)
+	@$(shell mkdir -p $(LIBDIR) 2>/dev/null)
 
 #=============================================================================#
 # make clean
