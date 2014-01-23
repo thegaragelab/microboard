@@ -113,7 +113,7 @@ typedef enum _BAUD {
  * must be provided by all implementations but it may not do anything. It
  * must be the first function called by the user application.
  */
-void mbInit();
+void mbInit(void);
 
 /** Delay for a specified number of milliseconds
  *
@@ -206,9 +206,9 @@ bool mbDigitalGet(SLOT slot, PIN pin);
  * @param clock the pin to use as the clock pin. Typicall this will be
  *              PIN_EXTRA.
  * @param order the bit order to use - either LSBFIRST or MSBFIRST.
- * @param data the 8 bit value to shift out.
+ * @param value the 8 bit value to shift out.
  */
-void mbDigitalShift(SLOT slot, PIN data, PIN clock, BITORDER order, uint8_t data);
+void mbDigitalShift(SLOT slot, PIN data, PIN clock, BITORDER order, uint8_t value);
 
 /** Shift a 16 bit value out a pair of pins
  *
@@ -226,9 +226,9 @@ void mbDigitalShift(SLOT slot, PIN data, PIN clock, BITORDER order, uint8_t data
  * @param clock the pin to use as the clock pin. Typicall this will be
  *              PIN_EXTRA.
  * @param order the bit order to use - either LSBFIRST or MSBFIRST.
- * @param data the 16 bit value to shift out.
+ * @param value the 16 bit value to shift out.
  */
-void mbDigitalShift16(SLOT slot, PIN data, PIN clock, BITORDER order, uint16_t data);
+void mbDigitalShift16(SLOT slot, PIN data, PIN clock, BITORDER order, uint16_t value);
 
 //---------------------------------------------------------------------------
 // SPI Operations
@@ -244,7 +244,7 @@ void mbDigitalShift16(SLOT slot, PIN data, PIN clock, BITORDER order, uint16_t d
  * OUTPUT pin (data flow from peripheral to CPU). You can modify this by
  * calling the 'mbDigitalInit()' function after SPI initialisation.
  */
-void mbInitSPI();
+void mbInitSPI(void);
 
 /** Transfer a single byte through an SPI slot
  *
