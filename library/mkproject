@@ -1,0 +1,63 @@
+#!/bin/sh
+#----------------------------------------------------------------------------
+# Generate a new project from one of the available templates.
+#----------------------------------------------------------------------------
+
+# Get our current directory
+PROJECT_DIR=`pwd`
+
+# Determine the location of the script (and therefore the templates)
+TEMPLATE_DIR=`dirname $0`
+TEMPLATE_DIR=`readlink -f ${TEMPLATE_DIR}/template`
+
+# Make sure the user wants to proceed
+cat <<!
+WARNING:
+
+This script will copy files from the selected template into the current
+directory. If files with the same name already exist, they will be overwritten.
+
+!
+
+read -p "Continue (yes/no)? " ANSWER
+if [ "X${ANSWER}" != "Xyes" ]; then
+  echo "\nOperation canceled."
+  exit 0
+fi
+
+# Generate a list of available templates
+TEMPLATES=""
+for f in `find ${TEMPLATE_DIR} -type d`; do
+  if [ -f ${f}/Makefile ]; then
+    TEMPLATES="${TEMPLATES} `basename $f`"
+  fi
+done
+
+echo "\nAvailable templates are: ${TEMPLATES}"
+
+# Get the user to select one
+ANSWER=""
+while [ "X${ANSWER}" = "X" ]; do
+  read -p "Enter template name: " ANSWER
+done
+
+if [ ! -f ${TEMPLATE_DIR}/${ANSWER}/Makefile ]; then
+  echo "\nInvalid template - ${ANSWER}. Operation canceled."
+  exit 1
+fi
+
+# Now get a project name
+cat <<!
+
+Now you need to select a name for your project. This must be a sequence of
+alphanumeric characters (no special characters or spaces). This name will be
+used as the name of the output binary and is inserted into the template
+make file.
+
+!
+
+ANSWER=""
+while [ "X${ANSWER}" = "X" ]; do
+  read -p "Enter project name: " ANSWER
+done
+
