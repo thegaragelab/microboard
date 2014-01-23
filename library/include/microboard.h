@@ -104,7 +104,7 @@ typedef enum _BAUD {
 #endif
 
 //---------------------------------------------------------------------------
-// Board level initialisation
+// General purpose operations
 //---------------------------------------------------------------------------
 
 /** Board level initialisation
@@ -114,6 +114,21 @@ typedef enum _BAUD {
  * must be the first function called by the user application.
  */
 void mbInit();
+
+/** Delay for a specified number of milliseconds
+ *
+ * This function blocks execution (interrupts will still be processed) for
+ * the specified number of milliseconds. The delay period is specified as
+ * an unsigned 16 bit integer allowing for a maximum delay of approximately
+ * 16.5 seconds.
+ *
+ * Most implementations of this function will be expected to use a timer to
+ * determine the delay period and should be reasonably accurate for periods
+ * >= 10ms.
+ *
+ * @param period the number of millseconds to delay for.
+ */
+void mbDelay(uint16_t period);
 
 //---------------------------------------------------------------------------
 // Digital operations
