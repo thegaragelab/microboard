@@ -37,6 +37,8 @@ typedef enum _SLOT {
   SPI_SLOT0, //! SPI Slot 0
   SPI_SLOT1, //! SPI Slot 1
   SPI_SLOT2, //! SPI Slot 2
+
+  SLOT_MAX
   } SLOT;
 
 /** Pin definitions
@@ -50,6 +52,9 @@ typedef enum _PIN {
   PIN_INPUT = 0, //! The input pin (relative to the Tab, is output from CPU)
   PIN_OUTPUT,    //! The output pin (relative to the Tab, is input to CPU)
   PIN_EXTRA,     //! The extra pin
+  PIN_ENABLE,    //! The enable pin (SPI slots only)
+
+  PIN_MAX
   } PIN;
 
 /** Pin direction
