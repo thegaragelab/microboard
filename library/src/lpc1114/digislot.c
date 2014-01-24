@@ -18,7 +18,7 @@
  * @param slot the slot to initialise. This may be any of the generic slots.
  */
 void mbInitSlot(SLOT slot) {
-  if((slot<SLOT0)||(slot>SLOT2))
+  if(slot>SLOT2)
     return; // Unsupported slot, just ignore it
   // Initialise the pins
   mbInitDigital(slot, PIN_INPUT, INPUT);
