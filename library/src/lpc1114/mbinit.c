@@ -7,8 +7,11 @@
 *  needed throughout the library.
 *--------------------------------------------------------------------------*/
 #include <microboard.h>
-#include "cmsis/LPC11xx.h"
+#include "lpc111x.h"
 #include "syscon.h"
+
+//! System tick count
+static volatile uint16_t g_systicks;
 
 /** Initialise the system clock
  *
@@ -26,12 +29,12 @@ static void initSystemClock(void) {
   frequency |= FLASHCFG_FLASHTIM_3CLK << FLASHCFG_FLASHTIM_bit;
   FLASHCFG = frequency;
   // Set up clock control
-  LPC_SYSCON->SYSOSCCTRL = 0;                      // "lower speed" crystals
-  LPC_SYSCON->PDRUNCFG &= ~PDRUNCFG_SYSOSC_PD;     // power-up main oscillator
+  SCB_SYSOSCCTRL = 0;                      // "lower speed" crystals
+  SCB_PDRUNCFG &= ~PDRUNCFG_SYSOSC_PD;     // power-up main oscillator
 
-  LPC_SYSCON->SYSPLLCLKSEL = SYSPLLCLKSEL_SEL_IRC; // select main oscillator as the input clock for PLL
-  LPC_SYSCON->SYSPLLCLKUEN = 0;                    // confirm the change of PLL input clock by toggling the...
-  LPC_SYSCON->SYSPLLCLKUEN = SYSPLLUEN_ENA;        // ...ENA bit in LPC_SYSCON->SYSPLLCLKUEN register
+  SCB_PLLCLKSEL = SYSPLLCLKSEL_SEL_IRC; // select main oscillator as the input clock for PLL
+  SCB_PLLCLKUEN = 0;                    // confirm the change of PLL input clock by toggling the...
+  SCB_PLLCLKUEN = SYSPLLUEN_ENA;        // ...ENA bit in SCB_SYSPLLCLKUEN register
 
   // calculate PLL parameters
   m = FREQ_CPU / FREQ_CRYSTAL;  // M is the PLL multiplier
@@ -43,18 +46,31 @@ static void initSystemClock(void) {
     }
 
   // Configure the PLL and power it up
-  LPC_SYSCON->SYSPLLCTRL = ((m - 1) << SYSPLLCTRL_MSEL_bit) | (p << SYSPLLCTRL_PSEL_bit);
-  LPC_SYSCON->PDRUNCFG &= ~PDRUNCFG_SYSPLL_PD;
+  SCB_PLLCTRL = ((m - 1) << SYSPLLCTRL_MSEL_bit) | (p << SYSPLLCTRL_PSEL_bit);
+  SCB_PDRUNCFG &= ~PDRUNCFG_SYSPLL_PD;
 
   // Wait for the PLL to lock
-  while (!(LPC_SYSCON->SYSPLLSTAT & SYSPLLSTAT_LOCK));
+  while (!(SCB_PLLSTAT & SYSPLLSTAT_LOCK));
 
   // Switch to PLL output as the main clock
-  LPC_SYSCON->MAINCLKSEL = MAINCLKSEL_SEL_PLLOUT; // select PLL output as the main clock
-  LPC_SYSCON->MAINCLKUEN = 0;                     // confirm the change of main clock by toggling the...
-  LPC_SYSCON->MAINCLKUEN = MAINCLKUEN_ENA;        // ...ENA bit in LPC_SYSCON->MAINCLKUEN register
-  LPC_SYSCON->SYSAHBCLKDIV = 1;                   // set AHB clock divider to 1
+  SCB_MAINCLKSEL = MAINCLKSEL_SEL_PLLOUT; // select PLL output as the main clock
+  SCB_MAINCLKUEN = 0;                     // confirm the change of main clock by toggling the...
+  SCB_MAINCLKUEN = MAINCLKUEN_ENA;        // ...ENA bit in LPC_SYSCON->MAINCLKUEN register
+  SCB_SYSAHBCLKDIV = 1;                   // set AHB clock divider to 1
   }
+
+/** System tick handler
+ *
+ * This function is invoked by the SysTick interrupt. It simply updates a 16
+ * bit counter (ignoring overflow).
+ */
+void SysTick_Handler (void) {
+  g_systicks++;
+  }
+
+//---------------------------------------------------------------------------
+// Public API
+//---------------------------------------------------------------------------
 
 /** Board level initialisation
  *
@@ -66,6 +82,37 @@ void mbInit(void) {
   // Initialise the system clock
   initSystemClock();
   // Enable clock for the IO configuration block
-  LPC_SYSCON->SYSAHBCLKCTRL |= SYSAHBCLKCTRL_IOCON;
+  SCB_SYSAHBCLKCTRL |= SYSAHBCLKCTRL_IOCON;
+  // Configure the SYSTICK timer for 1ms operation
+  SYSTICK_STRELOAD  = ((FREQ_CPU / 1000) & SYSTICK_STRELOAD_MASK) - 1;
+  SYSTICK_STCURR = 0;
+  SYSTICK_STCTRL = SYSTICK_STCTRL_CLKSOURCE | SYSTICK_STCTRL_TICKINT;
+  }
+
+/** Delay for a specified number of milliseconds
+ *
+ * This function blocks execution (interrupts will still be processed) for
+ * the specified number of milliseconds. The delay period is specified as
+ * an unsigned 16 bit integer allowing for a maximum delay of approximately
+ * 65 seconds.
+ *
+ * Most implementations of this function will be expected to use a timer to
+ * determine the delay period and should be reasonably accurate for periods
+ * >= 10ms.
+ *
+ * @param period the number of millseconds to delay for.
+ */
+void mbDelay(uint16_t period) {
+  // No delay, return immediately
+  if(period==0)
+    return;
+  // Reset counter
+  g_systicks = 0;
+  // Enable the SYSTICK interrupt
+  SYSTICK_STCTRL |= SYSTICK_STCTRL_ENABLE;
+  // Wait for the time to expire
+  while(g_systicks<period);
+  // Disable the interrupt
+  SYSTICK_STCTRL &= ~SYSTICK_STCTRL_ENABLE;
   }
 

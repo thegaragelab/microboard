@@ -120,7 +120,7 @@ void mbInit(void);
  * This function blocks execution (interrupts will still be processed) for
  * the specified number of milliseconds. The delay period is specified as
  * an unsigned 16 bit integer allowing for a maximum delay of approximately
- * 16.5 seconds.
+ * 65 seconds.
  *
  * Most implementations of this function will be expected to use a timer to
  * determine the delay period and should be reasonably accurate for periods
