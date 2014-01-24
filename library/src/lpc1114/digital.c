@@ -10,13 +10,13 @@
 #include "hardware.h"
 
 const PINDEF g_pindefs[] = {
-  // INPUT            OUTPUT           EXTRA           ENABLE
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SLOT0
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SLOT1
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SLOT2
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SPI0
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SPI1
-  { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, // SPI2
+  // INPUT                           OUTPUT                          EXTRA                           ENABLE
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SLOT0
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SLOT1
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SLOT2
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SPI0
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SPI1
+  { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, { 1, 1, 0, 0, &IOCON_PIO1_4 }, // SPI2
   };
 
 //---------------------------------------------------------------------------
@@ -39,6 +39,31 @@ const PINDEF g_pindefs[] = {
  *                  is defined relative to the peripheral (@see DIRECTION)
  */
 void mbInitDigital(SLOT slot, PIN pin, DIRECTION direction) {
+  // Check the parameters
+  if((slot>SLOT_MAX)||(pin>PIN_MAX))
+    return; // Bad slot or pin
+  const PINDEF *pindef = &g_pindefs[(slot * PIN_MAX) + pin];
+  if(!pindef->m_used)
+    return; // Unused slot/pin combination
+  // Get the direction register
+  volatile uint32_t *gpiodir = &GPIO_GPIO0DIR;
+  switch(pindef->m_port) {
+    case 0:
+      gpiodir = &GPIO_GPIO0DIR;
+      break;
+    case 1:
+      gpiodir = &GPIO_GPIO1DIR;
+      break;
+    case 2:
+      gpiodir = &GPIO_GPIO2DIR;
+      break;
+    case 3:
+      gpiodir = &GPIO_GPIO3DIR;
+      break;
+    default:
+      return; // Bad port number
+    }
+  // TODO: Set the direction and disable the pull up resistor
   }
 
 /** Write a digital value to a pin
