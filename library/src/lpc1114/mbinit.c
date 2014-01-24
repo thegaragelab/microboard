@@ -81,8 +81,8 @@ void SysTick_Handler (void) {
 void mbInit(void) {
   // Initialise the system clock
   initSystemClock();
-  // Enable clock for the IO configuration block
-  SCB_SYSAHBCLKCTRL |= SYSAHBCLKCTRL_IOCON;
+  // Enable clock for the IO configuration block and GPIO
+  SCB_SYSAHBCLKCTRL |= (SYSAHBCLKCTRL_IOCON | SCB_SYSAHBCLKCTRL_GPIO);
   // Configure the SYSTICK timer for 1ms operation
   SYSTICK_STRELOAD  = ((FREQ_CPU / 1000) & SYSTICK_STRELOAD_MASK) - 1;
   SYSTICK_STCURR = 0;
