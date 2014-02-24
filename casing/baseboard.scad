@@ -26,7 +26,7 @@ difference() {
     }
   // Cut away the main body
   translate(v = [ BORDER_SIZE + BORDER_LIP, BORDER_SIZE + BORDER_LIP, -CASE_DEPTH ]) {
-    cube(size = [ PCB_WIDTH - BORDER_LIP, PCB_HEIGHT - BORDER_LIP, 2 * CASE_DEPTH ], center = false);
+    cube(size = [ PCB_WIDTH - (2 * BORDER_LIP), PCB_HEIGHT - (2 * BORDER_LIP), 2 * CASE_DEPTH ], center = false);
     }
   }
 
